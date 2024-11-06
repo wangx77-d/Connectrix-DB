@@ -1,4 +1,7 @@
-service: Connectrix-DB
+org: connectrix
+app: connectrix-DB
+
+service: db-server
 
 provider:
   name: aws
