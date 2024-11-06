@@ -7,14 +7,19 @@ import {
   DescribeTableResult,
   DeleteTableResult,
 } from './types';
+import e from 'express';
 
-// Initialize DynamoDB client with credentials
-// const dynamodb = initializeDynamoDB();
 dotenv.config();
+let dynamodb: DynamoDB;
 
-AWS.config.update({ region: process.env.AWS_REGION });
-
-const dynamodb = new DynamoDB();
+if (process.env.ENV === 'local') {
+  dynamodb = initializeDynamoDB();
+} else {
+  // Initialize DynamoDB client with credentials
+  AWS.config.update({ region: process.env.AWS_REGION });
+  dynamodb = new DynamoDB();
+}
+//
 
 // Generic error handler
 const handleError = (error: unknown): string => {
