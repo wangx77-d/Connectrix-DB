@@ -1,4 +1,5 @@
-import { DynamoDB } from 'aws-sdk';
+import AWS, { DynamoDB } from 'aws-sdk';
+import dotenv from 'dotenv';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { initializeDynamoDB } from '../config/aws';
 import {
@@ -8,7 +9,12 @@ import {
 } from './types';
 
 // Initialize DynamoDB client with credentials
-const dynamodb = initializeDynamoDB();
+// const dynamodb = initializeDynamoDB();
+dotenv.config();
+
+AWS.config.update({ region: process.env.AWS_REGION });
+
+const dynamodb = new DynamoDB();
 
 // Generic error handler
 const handleError = (error: unknown): string => {
