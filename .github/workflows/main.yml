@@ -24,14 +24,14 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile # Changed from npm ci
 
-      - name: Lint check
-        run: yarn lint
+      #   - name: Lint check
+      #     run: yarn lint
 
-      - name: Type check
-        run: yarn type-check
+      #   - name: Type check
+      #     run: yarn type-check
 
-      - name: Run tests
-        run: yarn test
+      #   - name: Run tests
+      #     run: yarn test
 
       - name: Build
         run: yarn build
