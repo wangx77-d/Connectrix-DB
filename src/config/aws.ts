@@ -1,6 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
 import dotenv from 'dotenv';
-import { AWSRegions } from '../aws/variables';
+import { AWSRegions } from './variables';
 
 dotenv.config();
 

@@ -15,7 +15,7 @@ const router = express.Router();
 
 // Create table endpoint
 router.post(
-  '/tables',
+  '/',
   async (req: express.Request, res: express.Response) => {
     try {
       const { tableName, attributeName } = req.body;
@@ -48,19 +48,36 @@ router.post(
 
 // Describe table endpoint
 router.get(
-  '/tables/:tableName',
+  '/:tableName',
   async (req: express.Request, res: express.Response) => {
     try {
       const result: DescribeTableResult = await dynamodbDescribeTable(
         req.params.tableName
       );
-      if (result.success) {
-        res.json(result.data);
-      } else {
-        res.status(500).json({ error: result.error });
-      }
+
+      const statusCode = result.success ? 200 : 500;
+
+      res.status(statusCode).json(result);
     } catch (error) {
       res.status(500).json({ error: 'Failed to describe table' });
+    }
+  }
+);
+
+// Delete table endpoint
+router.delete(
+  '/:tableName',
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const result: DeleteTableResult = await dynamodbDeleteTable(
+        req.params.tableName
+      );
+
+      const statusCode = result.success ? 200 : 500;
+
+      res.status(statusCode).json(result);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to delete table' });
     }
   }
 );

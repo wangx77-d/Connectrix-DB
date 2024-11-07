@@ -7,7 +7,6 @@ import {
   DescribeTableResult,
   DeleteTableResult,
 } from './types';
-import e from 'express';
 
 dotenv.config();
 let dynamodb: DynamoDB;
@@ -15,11 +14,9 @@ let dynamodb: DynamoDB;
 if (process.env.ENV === 'local') {
   dynamodb = initializeDynamoDB();
 } else {
-  // Initialize DynamoDB client with credentials
   AWS.config.update({ region: process.env.AWS_REGION });
   dynamodb = new DynamoDB();
 }
-//
 
 // Generic error handler
 const handleError = (error: unknown): string => {
@@ -35,7 +32,6 @@ export const dynamodbCreateTable = async (
 ): Promise<CreateTableResult> => {
   try {
     const res = await dynamodb.createTable(params).promise();
-    console.log('Table created', res);
     return { success: true, data: res };
   } catch (error) {
     return {
@@ -56,7 +52,6 @@ export const dynamodbDescribeTable = async (
     const res = await dynamodb
       .describeTable({ TableName: tableName })
       .promise();
-    console.log('Table retrieved', res);
     return { success: true, data: res };
   } catch (error) {
     return {
@@ -77,7 +72,6 @@ export const dynamodbDeleteTable = async (
     const res = await dynamodb
       .deleteTable({ TableName: tableName })
       .promise();
-    console.log('Table deleted', res);
     return { success: true, data: res };
   } catch (error) {
     return {
@@ -104,7 +98,6 @@ export const dynamodbCreateRecord = async <
         Item: marshall(item),
       })
       .promise();
-    console.log('Record created', res);
     return { success: true, data: res };
   } catch (error) {
     return {
