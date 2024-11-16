@@ -146,7 +146,14 @@ export const dynamodbUpdateRecord = async (
     const expressionAttributeValues: Record<string, any> = {};
 
     Object.entries(updateAttributes).forEach(([key, value], index) => {
-        updateExpressionParts.push(`#field${index} = :value${index}`);
+        if (Array.isArray(value)) {
+            updateExpressionParts.push(
+                `#field${index} = list_append(if_not_exists(#field${index}, :empty_list), :value${index})`
+            );
+            expressionAttributeValues[`:empty_list`] = [];
+        } else {
+            updateExpressionParts.push(`#field${index} = :value${index}`);
+        }
         expressionAttributeNames[`#field${index}`] = key;
         expressionAttributeValues[`:value${index}`] = value;
     });
