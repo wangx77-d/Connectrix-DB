@@ -1,3 +1,3 @@
 export enum AWSRegions {
-  US_EAST_1 = 'us-east-1',
+    US_EAST_1 = 'us-east-1',
 }
