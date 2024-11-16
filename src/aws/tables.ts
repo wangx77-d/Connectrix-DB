@@ -285,3 +285,72 @@ export const dynamodbDeleteAllRecords = async (tableName: string) => {
         };
     }
 };
+
+// 11 - Add a secondary index
+export const dynamodbAddSecondaryIndex = async (
+    tableName: string,
+    indexName: string,
+    partitionKey: { AttributeName: string; AttributeType: string },
+    sortKey?: { AttributeName: string; AttributeType: string },
+    projectionType: 'ALL' | 'KEYS_ONLY' | 'INCLUDE' = 'ALL',
+    nonKeyAttributes?: string[]
+) => {
+    try {
+        const params: AWS.DynamoDB.UpdateTableInput = {
+            TableName: tableName,
+            AttributeDefinitions: [
+                {
+                    AttributeName: partitionKey.AttributeName,
+                    AttributeType: partitionKey.AttributeType,
+                },
+            ],
+            GlobalSecondaryIndexUpdates: [
+                {
+                    Create: {
+                        IndexName: indexName,
+                        KeySchema: [
+                            {
+                                AttributeName: partitionKey.AttributeName,
+                                KeyType: 'HASH', // Partition key
+                            },
+                        ],
+                        Projection: {
+                            ProjectionType: projectionType,
+                        },
+                        ProvisionedThroughput: {
+                            ReadCapacityUnits: 5, // different from the table's provisioned throughput
+                            WriteCapacityUnits: 5,
+                        },
+                    },
+                },
+            ],
+        };
+        if (sortKey) {
+            params.AttributeDefinitions?.push({
+                AttributeName: sortKey.AttributeName,
+                AttributeType: sortKey.AttributeType,
+            });
+            params.GlobalSecondaryIndexUpdates?.[0].Create?.KeySchema?.push({
+                AttributeName: sortKey.AttributeName,
+                KeyType: 'RANGE', // Sort key
+            });
+        }
+        if (projectionType === 'INCLUDE' && nonKeyAttributes) {
+            if (params.GlobalSecondaryIndexUpdates?.[0].Create?.Projection) {
+                params.GlobalSecondaryIndexUpdates[0].Create.Projection.NonKeyAttributes =
+                    nonKeyAttributes;
+            }
+        }
+
+        const res = await dynamodb.updateTable(params).promise();
+        return { success: true, data: res };
+    } catch (error) {
+        return {
+            success: false,
+            error: {
+                message: handleError(error) as string,
+                name: 'dynamodbAddSecondaryIndex error',
+            },
+        };
+    }
+};

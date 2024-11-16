@@ -2,78 +2,78 @@ name: CI/CD Pipeline - Deploy with Serverless
 
 # Triggers
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
 
 jobs:
-  # CI Job
-  test:
-    runs-on: ubuntu-latest
+    # CI Job
+    test:
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+        steps:
+            - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: 'yarn'
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
 
-      # Uncomment these steps if you want to run linting, type-checking, and tests during CI.
-      # - name: Lint check
-      #   run: yarn lint
+            # Uncomment these steps if you want to run linting, type-checking, and tests during CI.
+            # - name: Lint check
+            #   run: yarn lint
 
-      # - name: Type check
-      #   run: yarn type-check
+            # - name: Type check
+            #   run: yarn type-check
 
-      # - name: Run tests
-      #   run: yarn test
+            # - name: Run tests
+            #   run: yarn test
 
-      - name: Build
-        run: yarn build
+            - name: Build
+              run: yarn build
 
-  # CD Job - Deploy to Production
-  deploy-production:
-    needs: test
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
+    # CD Job - Deploy to Production
+    deploy-production:
+        needs: test
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        environment: production
 
-    steps:
-      - uses: actions/checkout@v3
+        steps:
+            - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: 'yarn'
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Authenticate with Serverless Framework
-        run: |
-          if [ -z "${{ secrets.SERVERLESS_ACCESS_KEY }}" ]; then
-            echo "Serverless access key is not set. Please set the SERVERLESS_ACCESS_KEY secret."
-            exit 1
-          fi
-        env:
-          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+            - name: Authenticate with Serverless Framework
+              run: |
+                  if [ -z "${{ secrets.SERVERLESS_ACCESS_KEY }}" ]; then
+                    echo "Serverless access key is not set. Please set the SERVERLESS_ACCESS_KEY secret."
+                    exit 1
+                  fi
+              env:
+                  SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
 
-      - name: Deploy to production
-        run: yarn deploy
-        env:
-          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
-          STAGE: production
+            - name: Deploy to production
+              run: yarn deploy
+              env:
+                  SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+                  STAGE: production
